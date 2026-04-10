@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Human Bingo</title>
+
+<style>
+body {
+  font-family: sans-serif;
+  text-align: center;
+  background: #f5f5f5;
+}
+
+h2 {
+  margin-top: 20px;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 6px;
+  max-width: 420px;
+  margin: 20px auto;
+}
+
+.cell {
+  border: 1px solid #333;
+  padding: 18px 5px;
+  font-size: 12px;
+  background: white;
+  border-radius: 8px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checked {
+  background-color: #4CAF50;
+  color: white;
+  font-weight: bold;
+}
+
+#bingo {
+  font-size: 22px;
+  color: #e91e63;
+  font-weight: bold;
+  display: none;
+}
+
+button {
+  margin-top: 10px;
+  padding: 8px 15px;
+  border: none;
+  border-radius: 6px;
+  background: black;
+  color: white;
+}
+</style>
+</head>
+
+<body>
+
+<h2>Human Bingo</h2>
+<div id="bingo">🎉 BINGO! 🎉</div>
+
+<div class="grid" id="grid"></div>
+
+<button onclick="resetBoard()">Reset</button>
+
+<script>
+const prompts = [
+"Has a pet","Plays games","Drinks coffee","Been overseas","Wakes early",
+"Likes anime","Owns a laptop","FREE","Has siblings","Uses TikTok",
+"Plays sports","Night owl","Reads books","Has a car","Likes music",
+"Early riser","Coffee lover","Has traveled","Pet owner","Gamer",
+"Likes movies","Uses Instagram","Student","Works part-time","Has a hobby"
+];
+
+const grid = document.getElementById("grid");
+
+// load saved state
+let saved = JSON.parse(localStorage.getItem("bingoState")) || [];
+
+prompts.forEach((text, i) => {
+  const cell = document.createElement("div");
+  cell.className = "cell";
+  cell.innerText = text;
+
+  if (saved[i]) cell.classList.add("checked");
+
+  cell.addEventListener("click", () => {
+    cell.classList.toggle("checked");
+    saved[i] = cell.classList.contains("checked");
+    localStorage.setItem("bingoState", JSON.stringify(saved));
+    checkBingo();
+  });
+
+  grid.appendChild(cell);
+});
+
+function checkBingo() {
+  const cells = document.querySelectorAll(".cell");
+
+  const get = i => cells[i].classList.contains("checked");
+
+  const winPatterns = [
+    [0,1,2,3,4],[5,6,7,8,9],[10,11,12,13,14],
+    [15,16,17,18,19],[20,21,22,23,24],
+    [0,5,10,15,20],[1,6,11,16,21],[2,7,12,17,22],
+    [3,8,13,18,23],[4,9,14,19,24],
+    [0,6,12,18,24],[4,8,12,16,20]
+  ];
+
+  const bingo = winPatterns.some(pattern =>
+    pattern.every(i => get(i))
+  );
+
+  document.getElementById("bingo").style.display = bingo ? "block" : "none";
+}
+
+function resetBoard() {
+  localStorage.removeItem("bingoState");
+  location.reload();
+}
+
+// check on load
+checkBingo();
+</script>
+
+</body>
+</html>
